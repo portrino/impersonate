@@ -20,8 +20,6 @@ declare(strict_types=1);
 
 namespace ChristianEssl\Impersonate\Utility;
 
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-
 class VerificationUtility
 {
     /**
@@ -32,7 +30,7 @@ class VerificationUtility
      */
     public static function buildVerificationHash(int $timeout, string $siteIdentifier, int $user): string
     {
-        if ($GLOBALS['BE_USER'] instanceof BackendUserAuthentication && $GLOBALS['BE_USER']->isAdmin()) {
+        if (BackendUserUtility::hasCurrentBackendUserImpersonationAccess()) {
             return hash(
                 'sha256',
                 $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] .
@@ -54,8 +52,7 @@ class VerificationUtility
         if (
             isset($impersonateData['timeout'], $impersonateData['user'], $impersonateData['site'], $impersonateData['verification'])
             && $impersonateData['timeout'] > time()
-            && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication
-            && $GLOBALS['BE_USER']->isAdmin()
+            && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             return $impersonateData['verification'] === hash(
                 'sha256',

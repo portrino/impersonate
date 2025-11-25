@@ -50,11 +50,16 @@ Open the TYPO3 Extension Manager, search for `impersonate` and install the exten
   impersonating a frontend user via the backend:
     - `tx_impersonate.loginRedirectPid`
 
+
+- By default, only backend admin users are allowed to impersonate frontend users. You can change this behavior by
+  setting the following user TSconfig value for the respective backend user or backend user group:
+    - `tx_impersonate.enable = 1` (set to `0` to disable again)
+
 ## 3. Usage
 
-- Go to the list module as a backend user with administrator privileges, open a page / sysfolder with frontend user
+- Go to the list module as a backend user (with administrator privileges), open a page / sysfolder with frontend user
   records and click the "Impersonate user" button.
-- Voila! You are now logged in as the chosen frontend user.
+- Congratulations! You are now logged in as the chosen frontend user.
 
 ---
 

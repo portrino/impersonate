@@ -20,10 +20,10 @@ declare(strict_types=1);
 
 namespace ChristianEssl\Impersonate\Listener;
 
+use ChristianEssl\Impersonate\Utility\BackendUserUtility;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
@@ -42,8 +42,7 @@ class RecordListRecordActionsListener
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
         if ($event->getTable() === 'fe_users'
-            && $GLOBALS['BE_USER'] instanceof BackendUserAuthentication
-            && $GLOBALS['BE_USER']->isAdmin()
+            && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             $event->setAction(
                 $this->addImpersonateButton($event->getRecord()),
