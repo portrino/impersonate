@@ -3,6 +3,8 @@ categories:
 
 settings:
   tx_impersonate.loginRedirectPid:
-    default: 0
-    type: int
+    label: 'Login Redirect PID'
+    description: 'Page ID to redirect after impersonation login'
     category: impersonate
+    type: page
+    default: 0
