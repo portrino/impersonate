@@ -1,8 +1,12 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  push:
+    # only trigger action if commits to the master branch are pushed,
+    # to prevent the action from being executed twice on pull requests
+    branches:
+      - master
 
 jobs:
   testsuite:

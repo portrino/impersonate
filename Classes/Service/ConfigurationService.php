@@ -26,11 +26,11 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 /**
  * Configuration utility
  */
-final class ConfigurationService
+final readonly class ConfigurationService
 {
     public function __construct(
-        protected readonly LoggerInterface $logger,
-        protected readonly SiteFinder $siteFinder
+        protected LoggerInterface $logger,
+        protected SiteFinder $siteFinder
     ) {}
 
     /**
@@ -66,7 +66,7 @@ final class ConfigurationService
             // fallback to the root page if no redirect page is configured to get rid of tx_impersonate GET params
             return $site->getRouter()->generateUri($site->getRootPageId())->__toString();
         } catch (\Exception $e) {
-            $this->logger?->error(
+            $this->logger->error(
                 'EXT:impersonate - Getting redirect page uri for {siteIdentifier} failed',
                 ['siteIdentifier' => $siteIdentifier, 'exception' => $e]
             );
