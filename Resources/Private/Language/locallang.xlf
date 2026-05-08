@@ -6,8 +6,8 @@
             <trans-unit id="button.impersonate">
                 <source>Impersonate User</source>
             </trans-unit>
-            <trans-unit id="constants.loginRedirectPid">
-                <source>Page to redirect to when impersonating a user</source>
+            <trans-unit id="error.no_site_found">
+                <source>The impersonate button can only be rendered if at least one site is configured.</source>
             </trans-unit>
         </body>
     </file>

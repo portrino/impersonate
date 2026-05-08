@@ -24,21 +24,35 @@ use ChristianEssl\Impersonate\Utility\BackendUserUtility;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Event listener for DatabaseRecordList, implementing the icons for impersonating a frontend user
  */
-class RecordListRecordActionsListener
+final readonly class RecordListRecordActionsListener
 {
+    public function __construct(
+        protected FlashMessageService $flashMessageService,
+        protected IconFactory $iconFactory,
+        protected SiteFinder $siteFinder,
+        protected UriBuilder $uriBuilder
+    ) {}
+
     /**
      * @param ModifyRecordListRecordActionsEvent $event
-     * @throws RouteNotFoundException
+     * @throws Exception
      */
+    #[AsEventListener(identifier: 'tx-impersonate-modify-record-list-record-actions', event: ModifyRecordListRecordActionsEvent::class)]
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
         if ($event->getTable() === 'fe_users'
@@ -57,19 +71,37 @@ class RecordListRecordActionsListener
     /**
      * @param array<string, mixed> $userRow
      * @return string
-     * @throws RouteNotFoundException
-     * @throws SiteNotFoundException
+     * @throws Exception
      */
     protected function addImpersonateButton(array $userRow): string
     {
-        $siteIdentifier = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId((int)$userRow['pid'])->getIdentifier();
+        try {
+            $siteIdentifier = $this->siteFinder->getSiteByPageId((int)$userRow['pid'])->getIdentifier();
+        } catch (SiteNotFoundException) {
+            $firstSite = current(array_slice($this->siteFinder->getAllSites(), 0, 1));
+            if (!$firstSite instanceof Site) {
+                throw new SiteNotFoundException('No sites found', 1778246174);
+            }
+            $siteIdentifier = $firstSite->getIdentifier();
+        } catch (\Exception) {
+            $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
+            // "hacky way" to make sure the flash message is only shown once and not for every user record in the list module
+            $messageQueue->clear(ContextualFeedbackSeverity::ERROR);
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                $this->translate('error.no_site_found'),
+                'Impersonate',
+                ContextualFeedbackSeverity::ERROR
+            );
+            $messageQueue->enqueue($flashMessage);
+            return '';
+        }
         $userUid = (int)$userRow['uid'];
 
         $uri = $this->buildFrontendLoginUri($siteIdentifier, $userUid);
 
         $buttonText = $this->translate('button.impersonate');
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $iconMarkup = $iconFactory->getIcon('actions-system-backend-user-switch', IconSize::SMALL)->render();
+        $iconMarkup = $this->iconFactory->getIcon('actions-system-backend-user-switch', IconSize::SMALL)->render();
 
         return '
             <a class="btn btn-default t3-impersonate-button"
@@ -87,8 +119,7 @@ class RecordListRecordActionsListener
      */
     protected function buildFrontendLoginUri(string $siteIdentifier, int $userUid): string
     {
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        return (string)$uriBuilder->buildUriFromRoute('impersonate_frontendlogin', ['site' => $siteIdentifier, 'user' => $userUid]);
+        return (string)$this->uriBuilder->buildUriFromRoute('impersonate_frontendlogin', ['site' => $siteIdentifier, 'user' => $userUid]);
     }
 
     /**

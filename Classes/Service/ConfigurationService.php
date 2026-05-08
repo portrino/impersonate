@@ -20,16 +20,18 @@ declare(strict_types=1);
 
 namespace ChristianEssl\Impersonate\Service;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Configuration utility
  */
-class ConfigurationService
+final class ConfigurationService implements LoggerAwareInterface
 {
-    public function __construct(
-        protected readonly SiteFinder $siteFinder
-    ) {}
+    use LoggerAwareTrait;
+
+    public function __construct(protected readonly SiteFinder $siteFinder) {}
 
     /**
      * @param string $siteIdentifier
@@ -60,9 +62,15 @@ class ConfigurationService
                             ->generateUri((int)$siteSettings['module']['tx_impersonate']['settings']['loginRedirectPid'])
                             ->__toString();
             }
+
+            // fallback to the root page if no redirect page is configured to get rid of tx_impersonate GET params
+            return $site->getRouter()->generateUri($site->getRootPageId())->__toString();
         } catch (\Exception $e) {
+            $this->logger->error(
+                'EXT:impersonate - Getting redirect page uri failed with the following error:' . $e->getMessage(),
+                [$siteIdentifier]
+            );
             return '';
         }
-        return '';
     }
 }

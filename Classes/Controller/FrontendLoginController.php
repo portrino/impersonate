@@ -23,17 +23,20 @@ namespace ChristianEssl\Impersonate\Controller;
 use ChristianEssl\Impersonate\Utility\VerificationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Handles logging in a frontend user with the given uid
  */
+#[Autoconfigure(public: true)]
 class FrontendLoginController
 {
+    public function __construct(protected SiteFinder $siteFinder) {}
+
     /**
      * @param ServerRequestInterface $request
      *
@@ -51,9 +54,7 @@ class FrontendLoginController
 
         // redirect to site root should always be safe for login purposes
         // -> "login redirect" happens in RedirectHandler middleware
-        $pageUid = GeneralUtility::makeInstance(SiteFinder::class)
-                                 ->getSiteByIdentifier($siteIdentifier)
-                                 ->getRootPageId();
+        $pageUid = $this->siteFinder->getSiteByIdentifier($siteIdentifier)->getRootPageId();
         $additionalGetVars = [
             'tx_impersonate' => [
                 'site' => $siteIdentifier,

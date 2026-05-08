@@ -23,14 +23,17 @@ namespace ChristianEssl\Impersonate\Authentication;
 use ChristianEssl\Impersonate\Utility\VerificationUtility;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Authentication\AuthenticationService;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+#[Autoconfigure(public: true)]
 class AuthService extends AuthenticationService
 {
+    public function __construct(protected readonly ConnectionPool $connectionPool) {}
+
     /**
      * @return array<string, mixed>|false User array or FALSE
      * @throws Exception
@@ -38,8 +41,7 @@ class AuthService extends AuthenticationService
     public function getUser(): array|bool
     {
         $uid = (int)$this->getRequest()->getQueryParams()['tx_impersonate']['user'];
-        $queryBuilder = (GeneralUtility::makeInstance(ConnectionPool::class))
-                                       ->getQueryBuilderForTable('fe_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('fe_users');
         $queryBuilder
             ->select('*')
             ->from('fe_users')

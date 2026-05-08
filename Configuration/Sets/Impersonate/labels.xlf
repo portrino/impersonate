@@ -16,7 +16,7 @@
 				<source>Login Redirect Page</source>
 			</trans-unit>
 			<trans-unit id="settings.description.tx_impersonate.loginRedirectPid">
-				<source>Page id to redirect to after logged in as/ impersonating a user</source>
+				<source>Page id to redirect to after being logged in as/ impersonated as user</source>
 			</trans-unit>
 		</body>
 	</file>
