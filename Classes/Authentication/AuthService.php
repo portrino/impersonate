@@ -18,10 +18,10 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Authentication;
+namespace Portrino\Impersonate\Authentication;
 
-use ChristianEssl\Impersonate\Utility\VerificationUtility;
 use Doctrine\DBAL\Exception;
+use Portrino\Impersonate\Utility\VerificationUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Authentication\AuthenticationService;

@@ -18,20 +18,20 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Service;
+namespace Portrino\Impersonate\Service;
 
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Configuration utility
  */
-final class ConfigurationService implements LoggerAwareInterface
+final readonly class ConfigurationService
 {
-    use LoggerAwareTrait;
-
-    public function __construct(protected readonly SiteFinder $siteFinder) {}
+    public function __construct(
+        protected LoggerInterface $logger,
+        protected SiteFinder $siteFinder
+    ) {}
 
     /**
      * @param string $siteIdentifier
@@ -66,7 +66,7 @@ final class ConfigurationService implements LoggerAwareInterface
             // fallback to the root page if no redirect page is configured to get rid of tx_impersonate GET params
             return $site->getRouter()->generateUri($site->getRootPageId())->__toString();
         } catch (\Exception $e) {
-            $this->logger?->error(
+            $this->logger->error(
                 'EXT:impersonate - Getting redirect page uri for {siteIdentifier} failed',
                 ['siteIdentifier' => $siteIdentifier, 'exception' => $e]
             );

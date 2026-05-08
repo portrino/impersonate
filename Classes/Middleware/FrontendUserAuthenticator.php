@@ -18,10 +18,10 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Middleware;
+namespace Portrino\Impersonate\Middleware;
 
-use ChristianEssl\Impersonate\Authentication\AuthService;
-use ChristianEssl\Impersonate\Utility\VerificationUtility;
+use Portrino\Impersonate\Authentication\AuthService;
+use Portrino\Impersonate\Utility\VerificationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

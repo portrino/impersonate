@@ -18,9 +18,9 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Listener;
+namespace Portrino\Impersonate\Listener;
 
-use ChristianEssl\Impersonate\Utility\BackendUserUtility;
+use Portrino\Impersonate\Utility\BackendUserUtility;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
