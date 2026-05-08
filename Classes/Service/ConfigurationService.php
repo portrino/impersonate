@@ -66,9 +66,9 @@ final class ConfigurationService implements LoggerAwareInterface
             // fallback to the root page if no redirect page is configured to get rid of tx_impersonate GET params
             return $site->getRouter()->generateUri($site->getRootPageId())->__toString();
         } catch (\Exception $e) {
-            $this->logger->error(
-                'EXT:impersonate - Getting redirect page uri failed with the following error:' . $e->getMessage(),
-                [$siteIdentifier]
+            $this->logger?->error(
+                'EXT:impersonate - Getting redirect page uri for {siteIdentifier} failed',
+                ['siteIdentifier' => $siteIdentifier, 'exception' => $e]
             );
             return '';
         }
