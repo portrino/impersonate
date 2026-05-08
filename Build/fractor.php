@@ -18,9 +18,7 @@ return FractorConfiguration::configure()
         dirname(__DIR__) . '/composer.json',
         dirname(__DIR__) . '/ext_emconf.php',
     ])
-    ->withSkip([
-        dirname(__DIR__) . '/packages/**/node_modules/*',
-    ])
+    ->withSkip([])
     ->withSets([
         Typo3LevelSetList::UP_TO_TYPO3_14
     ])
