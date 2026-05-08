@@ -18,9 +18,9 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Controller;
+namespace Portrino\Impersonate\Controller;
 
-use ChristianEssl\Impersonate\Utility\VerificationUtility;
+use Portrino\Impersonate\Utility\VerificationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;

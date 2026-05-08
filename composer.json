@@ -1,5 +1,5 @@
 {
-    "name": "christianessl/impersonate",
+    "name": "portrino/impersonate",
     "description": "Impersonate frontend users from inside the TYPO3 Backend.",
     "license": "GPL-2.0-or-later",
     "type": "typo3-cms-extension",
@@ -17,7 +17,7 @@
             "role": "Developer"
         }
     ],
-    "homepage": "https://christianessl.at",
+    "homepage": "https://www.portrino.de",
     "require": {
         "typo3/cms-backend": "^13.4",
         "typo3/cms-frontend": "^13.4",
@@ -38,16 +38,17 @@
         "typo3/coding-standards": "^0.8"
     },
     "replace": {
+        "christianessl/impersonate": "self.version",
         "typo3-ter/impersonate": "self.version"
     },
     "autoload": {
         "psr-4": {
-            "ChristianEssl\\Impersonate\\": "Classes"
+            "Portrino\\Impersonate\\": "Classes"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ChristianEssl\\Impersonate\\Tests\\": "Tests"
+            "Portrino\\Impersonate\\Tests\\": "Tests"
         }
     },
     "config": {

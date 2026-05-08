@@ -1,6 +1,6 @@
 <?php
 
-namespace ChristianEssl\Impersonate\Utility;
+namespace Portrino\Impersonate\Utility;
 
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 

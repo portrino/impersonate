@@ -18,20 +18,20 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace ChristianEssl\Impersonate\Service;
+namespace Portrino\Impersonate\Service;
 
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Configuration utility
  */
-final class ConfigurationService implements LoggerAwareInterface
+final class ConfigurationService
 {
-    use LoggerAwareTrait;
-
-    public function __construct(protected readonly SiteFinder $siteFinder) {}
+    public function __construct(
+        protected readonly LoggerInterface $logger,
+        protected readonly SiteFinder $siteFinder
+    ) {}
 
     /**
      * @param string $siteIdentifier
