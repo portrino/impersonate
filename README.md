@@ -7,6 +7,7 @@
 [![Total Downloads](https://poser.pugx.org/christianessl/impersonate/downloads)](https://packagist.org/packages/christianessl/impersonate)
 [![Monthly Downloads](https://poser.pugx.org/christianessl/impersonate/d/monthly)](https://packagist.org/packages/christianessl/impersonate)
 [![License](https://poser.pugx.org/christianessl/impersonate/license)](https://packagist.org/packages/christianessl/impersonate)
+[![CI](https://github.com/portrino/impersonate/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/portrino/impersonate/actions/workflows/ci.yml)
 
 ## What does it do?
 
