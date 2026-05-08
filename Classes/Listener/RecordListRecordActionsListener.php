@@ -63,7 +63,7 @@ final readonly class RecordListRecordActionsListener
             && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             $event->setAction(
-                $this->addImpersonateButton($event->getRecord()->getRawRecord()->toArray()),
+                $this->addImpersonateButton($event->getRecord()->getRawRecord()?->toArray() ?? []),
                 'impersonate',
                 ActionGroup::primary,
                 '',

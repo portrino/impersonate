@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+use a9f\Fractor\Configuration\FractorConfiguration;
+use a9f\Fractor\ValueObject\Indent;
+use a9f\FractorTypoScript\Configuration\TypoScriptProcessorOption;
+use a9f\FractorXml\Configuration\XmlProcessorOption;
+use a9f\Typo3Fractor\Set\Typo3LevelSetList;
+use Helmich\TypoScriptParser\Parser\Printer\PrettyPrinterConditionTermination;
+use Helmich\TypoScriptParser\Parser\Printer\PrettyPrinterConfiguration;
+
+return FractorConfiguration::configure()
+    ->withPaths([
+        dirname(__DIR__) . '/Classes/',
+        dirname(__DIR__) . '/Configuration/',
+        dirname(__DIR__) . '/Resources/',
+        dirname(__DIR__) . '/composer.json',
+        dirname(__DIR__) . '/ext_emconf.php',
+    ])
+    ->withSkip([
+        dirname(__DIR__) . '/packages/**/node_modules/*',
+    ])
+    ->withSets([
+        Typo3LevelSetList::UP_TO_TYPO3_14
+    ])
+    ->withOptions([
+        XmlProcessorOption::INDENT_CHARACTER => Indent::STYLE_SPACE,
+        XmlProcessorOption::INDENT_SIZE => 4,
+        TypoScriptProcessorOption::INDENT_SIZE => 4,
+        TypoScriptProcessorOption::INDENT_CHARACTER => PrettyPrinterConfiguration::INDENTATION_STYLE_SPACES,
+        TypoScriptProcessorOption::ADD_CLOSING_GLOBAL => false,
+        TypoScriptProcessorOption::INCLUDE_EMPTY_LINE_BREAKS => true,
+        TypoScriptProcessorOption::INDENT_CONDITIONS => true,
+        TypoScriptProcessorOption::CONDITION_TERMINATION => PrettyPrinterConditionTermination::Keep,
+    ]);
