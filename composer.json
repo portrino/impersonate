@@ -19,9 +19,9 @@
     ],
     "homepage": "https://www.portrino.de",
     "require": {
-        "typo3/cms-backend": "^13.4",
-        "typo3/cms-frontend": "^13.4",
-        "typo3/cms-extbase": "^13.4"
+        "typo3/cms-backend": "^13.4 || ^14.3",
+        "typo3/cms-frontend": "^13.4 || ^14.3",
+        "typo3/cms-extbase": "^13.4 || ^14.3"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.30",

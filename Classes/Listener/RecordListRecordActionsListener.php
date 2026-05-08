@@ -24,6 +24,9 @@ use Portrino\Impersonate\Utility\BackendUserUtility;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ActionGroup;
+use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
+use TYPO3\CMS\Backend\Template\Components\ComponentInterface;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -42,6 +45,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 final readonly class RecordListRecordActionsListener
 {
     public function __construct(
+        protected ComponentFactory $componentFactory,
         protected FlashMessageService $flashMessageService,
         protected IconFactory $iconFactory,
         protected SiteFinder $siteFinder,
@@ -55,13 +59,13 @@ final readonly class RecordListRecordActionsListener
     #[AsEventListener(identifier: 'tx-impersonate-modify-record-list-record-actions', event: ModifyRecordListRecordActionsEvent::class)]
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
-        if ($event->getTable() === 'fe_users'
+        if ($event->getRecord()->getMainType() === 'fe_users'
             && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             $event->setAction(
-                $this->addImpersonateButton($event->getRecord()),
+                $this->addImpersonateButton($event->getRecord()->getRawRecord()->toArray()),
                 'impersonate',
-                'primary',
+                ActionGroup::primary,
                 '',
                 'delete'
             );
@@ -70,10 +74,10 @@ final readonly class RecordListRecordActionsListener
 
     /**
      * @param array<string, mixed> $userRow
-     * @return string
+     * @return ComponentInterface|null
      * @throws Exception
      */
-    protected function addImpersonateButton(array $userRow): string
+    protected function addImpersonateButton(array $userRow): ?ComponentInterface
     {
         try {
             $siteIdentifier = $this->siteFinder->getSiteByPageId((int)$userRow['pid'])->getIdentifier();
@@ -94,21 +98,22 @@ final readonly class RecordListRecordActionsListener
                 ContextualFeedbackSeverity::ERROR
             );
             $messageQueue->enqueue($flashMessage);
-            return '';
+            return null;
         }
         $userUid = (int)$userRow['uid'];
 
         $uri = $this->buildFrontendLoginUri($siteIdentifier, $userUid);
 
-        $buttonText = $this->translate('button.impersonate');
-        $iconMarkup = $this->iconFactory->getIcon('actions-system-backend-user-switch', IconSize::SMALL)->render();
-
-        return '
-            <a class="btn btn-default t3-impersonate-button"
-               href="' . $uri . '" target="newTYPO3frontendWindow"
-               title="' . $buttonText . '">
-	                ' . $iconMarkup . '
-            </a>';
+        return $this->componentFactory->createLinkButton()
+                                      ->setAttributes(['target' => 'newTYPO3frontendWindow'])
+                                      ->setHref($uri)
+                                      ->setIcon(
+                                          $this->iconFactory->getIcon(
+                                              'actions-system-backend-user-switch',
+                                              IconSize::SMALL
+                                          )
+                                      )
+                                      ->setTitle($this->translate('button.impersonate'));
     }
 
     /**

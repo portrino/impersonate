@@ -2,7 +2,7 @@
 
 > Impersonate frontend users from inside the TYPO3 Backend.
 
-[![TYPO3 13](https://img.shields.io/badge/TYPO3-13-orange.svg)](https://get.typo3.org/version/13)
+[![TYPO3 14](https://img.shields.io/badge/TYPO3-14-orange.svg)](https://get.typo3.org/version/13)
 [![Latest Stable Version](https://poser.pugx.org/christianessl/impersonate/v/stable)](https://packagist.org/packages/christianessl/impersonate)
 [![Total Downloads](https://poser.pugx.org/christianessl/impersonate/downloads)](https://packagist.org/packages/christianessl/impersonate)
 [![Monthly Downloads](https://poser.pugx.org/christianessl/impersonate/d/monthly)](https://packagist.org/packages/christianessl/impersonate)
@@ -25,10 +25,11 @@ tech support actions while impersonating the specified user account.
 
 | Impersonate | TYPO3     | PHP       | Support / Development                |
 |-------------|-----------|-----------|--------------------------------------|
+| 6.x         | 14.3      | 8.3 - 8.5 | features, bugfixes, security updates |
 | 5.x         | 13.4      | 8.2 - 8.4 | features, bugfixes, security updates |
-| 4.x         | 13.4      | 8.2 - 8.4 | features, bugfixes, security updates |
-| 3.x         | 12.4      | 8.1 - 8.3 | features, bugfixes, security updates |
-| 2.x         | 11.5      | 7.4 - 8.3 | bugfixes, security updates           |
+| 4.x         | 13.4      | 8.2 - 8.4 | bugfixes, security updates           |
+| 3.x         | 12.4      | 8.1 - 8.3 | bugfixes, security updates           |
+| 2.x         | 11.5      | 7.4 - 8.3 | none                                 |
 | 1.1.x       | 10.4      | 7.0 - 7.4 | none                                 |
 | 1.0.x       | 8.7 - 9.5 | 7.0 - 7.4 | none                                 |
 
