@@ -93,7 +93,7 @@ final class RecordListRecordActionsListener
                 $siteIdentifier = $this->getSiteIdentifierByBeSessionHost();
             } catch (\RuntimeException) {
                 $this->renderFlashMessage('error.no_site_found', ContextualFeedbackSeverity::ERROR);
-                return '';
+                return null;
             }
         }
         $userUid = (int)$userRow['uid'];
