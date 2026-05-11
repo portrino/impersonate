@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Portrino\Impersonate\Listener;
 
 use Portrino\Impersonate\Utility\BackendUserUtility;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -31,7 +32,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
-use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,6 +43,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 final readonly class RecordListRecordActionsListener
 {
     public function __construct(
+        protected BackendEntryPointResolver $backendEntryPointResolver,
         protected FlashMessageService $flashMessageService,
         protected IconFactory $iconFactory,
         protected SiteFinder $siteFinder,
@@ -75,25 +77,31 @@ final readonly class RecordListRecordActionsListener
      */
     protected function addImpersonateButton(array $userRow): string
     {
+        // get the hostname of the current backend user login session for checks below
+        $beSessionUri = $this->backendEntryPointResolver->getUriFromRequest($this->getRequest());
+        $beSessionHost = $beSessionUri->getHost();
+
         try {
-            $siteIdentifier = $this->siteFinder->getSiteByPageId((int)$userRow['pid'])->getIdentifier();
-        } catch (SiteNotFoundException) {
-            $firstSite = current(array_slice($this->siteFinder->getAllSites(), 0, 1));
-            if (!$firstSite instanceof Site) {
-                throw new SiteNotFoundException('No sites found', 1778246174);
+            $site = $this->siteFinder->getSiteByPageId((int)$userRow['pid']);
+            if ($site->getBase()->getHost() !== $beSessionHost) {
+                $this->renderFlashMessage('warning.backend_user_host_site_mismatch');
             }
-            $siteIdentifier = $firstSite->getIdentifier();
+            $siteIdentifier = $site->getIdentifier();
+        } catch (SiteNotFoundException) {
+            $sites = $this->siteFinder->getAllSites();
+            $siteFallback = null;
+            foreach ($sites as $site) {
+                if ($site->getBase()->getHost() === $beSessionHost) {
+                    $siteFallback = $site;
+                    break;
+                }
+            }
+            if ($siteFallback === null) {
+                throw new SiteNotFoundException('No matching site found', 1778246174);
+            }
+            $siteIdentifier = $siteFallback->getIdentifier();
         } catch (\Exception) {
-            $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
-            // "hacky way" to make sure the flash message is only shown once and not for every user record in the list module
-            $messageQueue->clear(ContextualFeedbackSeverity::ERROR);
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $this->translate('error.no_site_found'),
-                'Impersonate',
-                ContextualFeedbackSeverity::ERROR
-            );
-            $messageQueue->enqueue($flashMessage);
+            $this->renderFlashMessage('error.no_site_found', ContextualFeedbackSeverity::ERROR);
             return '';
         }
         $userUid = (int)$userRow['uid'];
@@ -130,5 +138,24 @@ final readonly class RecordListRecordActionsListener
     protected function translate(string $key): string
     {
         return $GLOBALS['LANG']->sL('LLL:EXT:impersonate/Resources/Private/Language/locallang.xlf:' . $key);
+    }
+
+    protected function getRequest(): ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'];
+    }
+
+    protected function renderFlashMessage(string $locallangKey, ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::WARNING): void
+    {
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
+        // "hacky way" to make sure the flash message is only shown once and not for every user record in the list module
+        $messageQueue->clear($severity);
+        $flashMessage = GeneralUtility::makeInstance(
+            FlashMessage::class,
+            $this->translate($locallangKey),
+            'Impersonate',
+            $severity
+        );
+        $messageQueue->enqueue($flashMessage);
     }
 }
