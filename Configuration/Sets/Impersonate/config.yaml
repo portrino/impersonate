@@ -1,4 +1,4 @@
-name: christianessl/impersonate
+name: portrino/impersonate
 label: 'Impersonate'
 dependencies:
   - typo3/felogin

@@ -2,11 +2,11 @@
 
 > Impersonate frontend users from inside the TYPO3 Backend.
 
-[![TYPO3 14](https://img.shields.io/badge/TYPO3-14-orange.svg)](https://get.typo3.org/version/13)
-[![Latest Stable Version](https://poser.pugx.org/christianessl/impersonate/v/stable)](https://packagist.org/packages/christianessl/impersonate)
-[![Total Downloads](https://poser.pugx.org/christianessl/impersonate/downloads)](https://packagist.org/packages/christianessl/impersonate)
-[![Monthly Downloads](https://poser.pugx.org/christianessl/impersonate/d/monthly)](https://packagist.org/packages/christianessl/impersonate)
-[![License](https://poser.pugx.org/christianessl/impersonate/license)](https://packagist.org/packages/christianessl/impersonate)
+[![TYPO3 13](https://img.shields.io/badge/TYPO3-13-orange.svg)](https://get.typo3.org/version/13)
+[![Latest Stable Version](https://poser.pugx.org/portrino/impersonate/v/stable)](https://packagist.org/packages/portrino/impersonate)
+[![Total Downloads](https://poser.pugx.org/portrino/impersonate/downloads)](https://packagist.org/packages/portrino/impersonate)
+[![Monthly Downloads](https://poser.pugx.org/portrino/impersonate/d/monthly)](https://packagist.org/packages/portrino/impersonate)
+[![License](https://poser.pugx.org/portrino/impersonate/license)](https://packagist.org/packages/portrino/impersonate)
 [![CI](https://github.com/portrino/impersonate/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/portrino/impersonate/actions/workflows/ci.yml)
 
 ## What does it do?

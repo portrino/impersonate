@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Portrino\Impersonate\Listener;
 
 use Portrino\Impersonate\Utility\BackendUserUtility;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -34,7 +35,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
-use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,14 +43,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Event listener for DatabaseRecordList, implementing the icons for impersonating a frontend user
  */
-final readonly class RecordListRecordActionsListener
+final class RecordListRecordActionsListener
 {
+    private string $beSessionHost = '';
+
     public function __construct(
-        protected ComponentFactory $componentFactory,
-        protected FlashMessageService $flashMessageService,
-        protected IconFactory $iconFactory,
-        protected SiteFinder $siteFinder,
-        protected UriBuilder $uriBuilder
+        private readonly BackendEntryPointResolver $backendEntryPointResolver,
+        private readonly ComponentFactory $componentFactory,
+        private readonly FlashMessageService $flashMessageService,
+        private readonly IconFactory $iconFactory,
+        private readonly SiteFinder $siteFinder,
+        private readonly UriBuilder $uriBuilder
     ) {}
 
     /**
@@ -62,6 +66,9 @@ final readonly class RecordListRecordActionsListener
         if ($event->getRecord()->getMainType() === 'fe_users'
             && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
+            // get the hostname of the current backend user login session for checks below
+            $this->beSessionHost = $this->backendEntryPointResolver->getUriFromRequest($this->getRequest())->getHost();
+
             $event->setAction(
                 $this->addImpersonateButton($event->getRecord()->getRawRecord()?->toArray() ?? []),
                 'impersonate',
@@ -77,43 +84,33 @@ final readonly class RecordListRecordActionsListener
      * @return ComponentInterface|null
      * @throws Exception
      */
-    protected function addImpersonateButton(array $userRow): ?ComponentInterface
+    private function addImpersonateButton(array $userRow): ?ComponentInterface
     {
         try {
-            $siteIdentifier = $this->siteFinder->getSiteByPageId((int)$userRow['pid'])->getIdentifier();
+            $siteIdentifier = $this->getSiteIdentifierByUserStoragePageId((int)$userRow['pid']);
         } catch (SiteNotFoundException) {
-            $firstSite = current(array_slice($this->siteFinder->getAllSites(), 0, 1));
-            if (!$firstSite instanceof Site) {
-                throw new SiteNotFoundException('No sites found', 1778246174);
+            try {
+                $siteIdentifier = $this->getSiteIdentifierByBeSessionHost();
+            } catch (\RuntimeException) {
+                $this->renderFlashMessage('error.no_site_found', ContextualFeedbackSeverity::ERROR);
+                return '';
             }
-            $siteIdentifier = $firstSite->getIdentifier();
-        } catch (\Exception) {
-            $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
-            // "hacky way" to make sure the flash message is only shown once and not for every user record in the list module
-            $messageQueue->clear(ContextualFeedbackSeverity::ERROR);
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $this->translate('error.no_site_found'),
-                'Impersonate',
-                ContextualFeedbackSeverity::ERROR
-            );
-            $messageQueue->enqueue($flashMessage);
-            return null;
         }
         $userUid = (int)$userRow['uid'];
 
         $uri = $this->buildFrontendLoginUri($siteIdentifier, $userUid);
 
-        return $this->componentFactory->createLinkButton()
-                                      ->setAttributes(['target' => 'newTYPO3frontendWindow'])
-                                      ->setHref($uri)
-                                      ->setIcon(
-                                          $this->iconFactory->getIcon(
-                                              'actions-system-backend-user-switch',
-                                              IconSize::SMALL
-                                          )
-                                      )
-                                      ->setTitle($this->translate('button.impersonate'));
+        return $this->componentFactory
+            ->createLinkButton()
+            ->setAttributes(['target' => 'newTYPO3frontendWindow'])
+            ->setHref($uri)
+            ->setIcon(
+                $this->iconFactory->getIcon(
+                    'actions-system-backend-user-switch',
+                    IconSize::SMALL
+                )
+            )
+            ->setTitle($this->translate('button.impersonate'));
     }
 
     /**
@@ -122,7 +119,7 @@ final readonly class RecordListRecordActionsListener
      * @return string
      * @throws RouteNotFoundException
      */
-    protected function buildFrontendLoginUri(string $siteIdentifier, int $userUid): string
+    private function buildFrontendLoginUri(string $siteIdentifier, int $userUid): string
     {
         return (string)$this->uriBuilder->buildUriFromRoute('impersonate_frontendlogin', ['site' => $siteIdentifier, 'user' => $userUid]);
     }
@@ -132,8 +129,61 @@ final readonly class RecordListRecordActionsListener
      *
      * @return string
      */
-    protected function translate(string $key): string
+    private function translate(string $key): string
     {
         return $GLOBALS['LANG']->sL('LLL:EXT:impersonate/Resources/Private/Language/locallang.xlf:' . $key);
+    }
+
+    private function getRequest(): ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'];
+    }
+
+    private function renderFlashMessage(string $locallangKey, ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::WARNING): void
+    {
+        $messageQueue = $this->flashMessageService->getMessageQueueByIdentifier();
+        // "hacky way" to make sure the flash message is only shown once and not for every user record in the list module
+        $messageQueue->clear($severity);
+        $flashMessage = GeneralUtility::makeInstance(
+            FlashMessage::class,
+            $this->translate($locallangKey),
+            'Impersonate',
+            $severity
+        );
+        $messageQueue->enqueue($flashMessage);
+    }
+
+    /**
+     * @param int $pageId
+     * @return string
+     * @throws SiteNotFoundException
+     */
+    private function getSiteIdentifierByUserStoragePageId(int $pageId): string
+    {
+        $site = $this->siteFinder->getSiteByPageId($pageId);
+        if ($site->getBase()->getHost() !== $this->beSessionHost) {
+            $this->renderFlashMessage('warning.backend_user_host_site_mismatch');
+        }
+        return $site->getIdentifier();
+    }
+
+    /**
+     * @return string
+     * @throws \RuntimeException
+     */
+    private function getSiteIdentifierByBeSessionHost(): string
+    {
+        $sites = $this->siteFinder->getAllSites();
+        $siteFallback = null;
+        foreach ($sites as $site) {
+            if ($site->getBase()->getHost() === $this->beSessionHost) {
+                $siteFallback = $site;
+                break;
+            }
+        }
+        if ($siteFallback === null) {
+            throw new \RuntimeException('No matching site found', 1778246174);
+        }
+        return $siteFallback->getIdentifier();
     }
 }

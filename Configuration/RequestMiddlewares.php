@@ -2,13 +2,13 @@
 
 return [
     'frontend' => [
-        'christianessl/impersonate/authentication' => [
+        'portrino/impersonate/authentication' => [
             'target' => \Portrino\Impersonate\Middleware\FrontendUserAuthenticator::class,
             'before' => [
                 'typo3/cms-frontend/authentication',
             ],
         ],
-        'christianessl/impersonate/redirecthandler' => [
+        'portrino/impersonate/redirecthandler' => [
             'target' => \Portrino\Impersonate\Middleware\RedirectHandler::class,
             'after' => [
                 'typo3/cms-frontend/authentication',

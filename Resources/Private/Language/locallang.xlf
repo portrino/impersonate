@@ -9,6 +9,9 @@
             <trans-unit id="error.no_site_found">
                 <source>The impersonate button can only be rendered if at least one site is configured.</source>
             </trans-unit>
+            <trans-unit id="warning.backend_user_host_site_mismatch">
+                <source>The backend user hostname does not match the hostname for the frontend users on this page. Impersonating these frontend users may fail because of a missing matching backend user session. Please login to the backend using the same hostname.</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>
