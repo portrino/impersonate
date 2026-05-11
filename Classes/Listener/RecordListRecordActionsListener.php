@@ -63,7 +63,7 @@ final class RecordListRecordActionsListener
             && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             // get the hostname of the current backend user login session for checks below
-            $beSessionHost = $this->backendEntryPointResolver->getUriFromRequest($this->getRequest())->getHost();
+            $this->beSessionHost = $this->backendEntryPointResolver->getUriFromRequest($this->getRequest())->getHost();
 
             $event->setAction(
                 $this->addImpersonateButton($event->getRecord()),
