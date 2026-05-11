@@ -12,13 +12,12 @@ use Helmich\TypoScriptParser\Parser\Printer\PrettyPrinterConfiguration;
 
 return FractorConfiguration::configure()
     ->withPaths([
-        dirname(__DIR__) . '/Classes/',
-        dirname(__DIR__) . '/Configuration/',
-        dirname(__DIR__) . '/Resources/',
-        dirname(__DIR__) . '/composer.json',
-        dirname(__DIR__) . '/ext_emconf.php',
+        __DIR__ . '/../Classes/',
+        __DIR__ . '/../Configuration/',
+        __DIR__ . '/../Resources/',
+        __DIR__ . '/../composer.json',
+        __DIR__ . '/../ext_emconf.php',
     ])
-    ->withSkip([])
     ->withSets([
         Typo3LevelSetList::UP_TO_TYPO3_14
     ])
