@@ -98,7 +98,17 @@
         "fix:php": [
             "@fix:php:cs"
         ],
-        "fix:php:cs": "./.Build/bin/php-cs-fixer fix --config ./Build/php-cs-fixer.php"
+        "fix:php:cs": "./.Build/bin/php-cs-fixer fix --config ./Build/php-cs-fixer.php",
+
+        "prepare-release": [
+            "rm -rf .Build",
+            "rm -rf .github",
+            "rm -rf Build",
+            "rm -rf Tests",
+            "rm .editorconfig",
+            "rm .gitattributes",
+            "rm .gitignore"
+        ]
     },
     "scripts-descriptions": {
         "ci": "Runs all dynamic and static code checks.",
