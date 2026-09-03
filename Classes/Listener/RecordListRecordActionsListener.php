@@ -25,6 +25,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ActionGroup;
+use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
+use TYPO3\CMS\Backend\Template\Components\ComponentInterface;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -46,6 +49,7 @@ final class RecordListRecordActionsListener
 
     public function __construct(
         private readonly BackendEntryPointResolver $backendEntryPointResolver,
+        private readonly ComponentFactory $componentFactory,
         private readonly FlashMessageService $flashMessageService,
         private readonly IconFactory $iconFactory,
         private readonly SiteFinder $siteFinder,
@@ -59,16 +63,16 @@ final class RecordListRecordActionsListener
     #[AsEventListener(identifier: 'tx-impersonate-modify-record-list-record-actions', event: ModifyRecordListRecordActionsEvent::class)]
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
-        if ($event->getTable() === 'fe_users'
+        if ($event->getRecord()->getMainType() === 'fe_users'
             && BackendUserUtility::hasCurrentBackendUserImpersonationAccess()
         ) {
             // get the hostname of the current backend user login session for checks below
             $this->beSessionHost = $this->backendEntryPointResolver->getUriFromRequest($this->getRequest())->getHost();
 
             $event->setAction(
-                $this->addImpersonateButton($event->getRecord()),
+                $this->addImpersonateButton($event->getRecord()->getRawRecord()?->toArray() ?? []),
                 'impersonate',
-                'primary',
+                ActionGroup::primary,
                 '',
                 'delete'
             );
@@ -77,10 +81,10 @@ final class RecordListRecordActionsListener
 
     /**
      * @param array<string, mixed> $userRow
-     * @return string
+     * @return ComponentInterface|null
      * @throws Exception
      */
-    private function addImpersonateButton(array $userRow): string
+    private function addImpersonateButton(array $userRow): ?ComponentInterface
     {
         try {
             $siteIdentifier = $this->getSiteIdentifierByUserStoragePageId((int)$userRow['pid']);
@@ -89,22 +93,24 @@ final class RecordListRecordActionsListener
                 $siteIdentifier = $this->getSiteIdentifierByBeSessionHost();
             } catch (\RuntimeException) {
                 $this->renderFlashMessage('error.no_site_found', ContextualFeedbackSeverity::ERROR);
-                return '';
+                return null;
             }
         }
         $userUid = (int)$userRow['uid'];
 
         $uri = $this->buildFrontendLoginUri($siteIdentifier, $userUid);
 
-        $buttonText = $this->translate('button.impersonate');
-        $iconMarkup = $this->iconFactory->getIcon('actions-system-backend-user-switch', IconSize::SMALL)->render();
-
-        return '
-            <a class="btn btn-default t3-impersonate-button"
-               href="' . $uri . '" target="newTYPO3frontendWindow"
-               title="' . $buttonText . '">
-	                ' . $iconMarkup . '
-            </a>';
+        return $this->componentFactory
+            ->createLinkButton()
+            ->setAttributes(['target' => 'newTYPO3frontendWindow'])
+            ->setHref($uri)
+            ->setIcon(
+                $this->iconFactory->getIcon(
+                    'actions-system-backend-user-switch',
+                    IconSize::SMALL
+                )
+            )
+            ->setTitle($this->translate('button.impersonate'));
     }
 
     /**

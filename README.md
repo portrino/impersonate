@@ -68,9 +68,10 @@ Open the TYPO3 Extension Manager, search for `impersonate` and install the exten
 
 | Impersonate | TYPO3     | PHP       | Support / Development                |
 |-------------|-----------|-----------|--------------------------------------|
+| 6.x         | 14.3      | 8.3 - 8.5 | features, bugfixes, security updates |
 | 5.x         | 13.4      | 8.2 - 8.4 | features, bugfixes, security updates |
-| 4.x         | 13.4      | 8.2 - 8.4 | features, bugfixes, security updates |
-| 3.x         | 12.4      | 8.1 - 8.3 | bugfixes, security updates           |
+| 4.x         | 13.4      | 8.2 - 8.4 | bugfixes, security updates           |
+| 3.x         | 12.4      | 8.1 - 8.3 | none                                 |
 | 2.x         | 11.5      | 7.4 - 8.3 | none                                 |
 | 1.1.x       | 10.4      | 7.0 - 7.4 | none                                 |
 | 1.0.x       | 8.7 - 9.5 | 7.0 - 7.4 | none                                 |

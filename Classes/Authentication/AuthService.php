@@ -38,6 +38,7 @@ class AuthService extends AuthenticationService
      * @return array<string, mixed>|false User array or FALSE
      * @throws Exception
      */
+    #[\Override]
     public function getUser(): array|bool
     {
         $uid = (int)$this->getRequest()->getQueryParams()['tx_impersonate']['user'];
@@ -65,6 +66,7 @@ class AuthService extends AuthenticationService
      * @param array<string, mixed> $user
      * @return int
      */
+    #[\Override]
     public function authUser(array $user): int
     {
         $result = 100;
