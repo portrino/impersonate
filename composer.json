@@ -25,8 +25,8 @@
         "typo3/cms-frontend": "^14.3"
     },
     "require-dev": {
-        "a9f/fractor-composer-json": "^0.5",
-        "a9f/typo3-fractor": "^0.5",
+        "a9f/fractor-composer-json": "^1.0",
+        "a9f/typo3-fractor": "^1.0",
         "ergebnis/composer-normalize": "^2.30",
         "friendsofphp/php-cs-fixer": "^3.14",
         "helmich/typo3-typoscript-lint": "^3.1",
@@ -38,7 +38,7 @@
         "ssch/typo3-rector": "^3.0",
         "tomasvotruba/cognitive-complexity": "^1.0",
         "tomasvotruba/type-coverage": "^2.0",
-        "typo3/coding-standards": "^0.8"
+        "typo3/coding-standards": "^0.9"
     },
     "replace": {
         "christianessl/impersonate": "self.version",
@@ -74,8 +74,10 @@
     },
     "scripts": {
         "ci": [
+            "@ci:composer:audit",
             "@ci:static"
         ],
+        "ci:composer:audit": "@composer audit --abandoned=ignore --ignore-unreachable",
         "ci:composer:normalize": "@composer normalize --no-check-lock --dry-run",
         "ci:composer:psr-verify": "@composer dumpautoload --optimize --strict-psr",
         "ci:fractor": "./.Build/bin/fractor process --ansi --config ./Build/fractor.php --dry-run --no-progress-bar",
@@ -99,7 +101,7 @@
             "@ci:ts:lint",
             "@ci:yaml:lint"
         ],
-        "ci:ts:lint": "[ -d Configuration/TypoScript ] && ./.Build/bin/typoscript-lint -c ./Build/typoscript-lint.yaml --ansi -n --fail-on-warnings -vvv Configuration/TypoScript || echo 'No TypoScript files found.'",
+        "ci:ts:lint": "[ -d Configuration/TypoScript ] && ./.Build/bin/typoscript-lint -c ./Build/typoscript-lint.yaml --ansi -n --fail-on-warnings -vvv Configuration/ || echo 'No TypoScript files found.'",
         "ci:yaml:lint": "find . ! -path '*.Build/*' ! -path '*node_modules/*' -regextype egrep -regex '.*.ya?ml$' | xargs -r php ./.Build/bin/yaml-lint",
 
         "fix:fractor": "./.Build/bin/fractor process --ansi --config ./Build/fractor.php --no-progress-bar",
@@ -107,7 +109,17 @@
             "@fix:php:cs"
         ],
         "fix:php:cs": "./.Build/bin/php-cs-fixer fix --config ./Build/php-cs-fixer.php",
-        "fix:php:rector": "./.Build/bin/rector process --ansi --config ./Build/rector.php --no-progress-bar"
+        "fix:php:rector": "./.Build/bin/rector process --ansi --config ./Build/rector.php --no-progress-bar",
+
+        "prepare-release": [
+            "rm -rf .Build",
+            "rm -rf .github",
+            "rm -rf Build",
+            "rm -rf Tests",
+            "rm .editorconfig",
+            "rm .gitattributes",
+            "rm .gitignore"
+        ]
     },
     "scripts-descriptions": {
         "ci": "Runs all dynamic and static code checks.",

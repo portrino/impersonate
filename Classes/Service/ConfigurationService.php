@@ -29,8 +29,8 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 final readonly class ConfigurationService
 {
     public function __construct(
-        protected LoggerInterface $logger,
-        protected SiteFinder $siteFinder
+        private LoggerInterface $logger,
+        private SiteFinder $siteFinder
     ) {}
 
     /**

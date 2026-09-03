@@ -33,11 +33,11 @@ class VerificationUtility
         if (BackendUserUtility::hasCurrentBackendUserImpersonationAccess()) {
             return hash(
                 'sha256',
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] .
-                $GLOBALS['BE_USER']->getSession()->getIdentifier() .
-                $timeout .
-                $siteIdentifier .
-                $user
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']
+                . $GLOBALS['BE_USER']->getSession()->getIdentifier()
+                . $timeout
+                . $siteIdentifier
+                . $user
             );
         }
         return '';
@@ -56,11 +56,11 @@ class VerificationUtility
         ) {
             return $impersonateData['verification'] === hash(
                 'sha256',
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] .
-                $GLOBALS['BE_USER']->getSession()->getIdentifier() .
-                $impersonateData['timeout'] .
-                $impersonateData['site'] .
-                $impersonateData['user']
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']
+                . $GLOBALS['BE_USER']->getSession()->getIdentifier()
+                . $impersonateData['timeout']
+                . $impersonateData['site']
+                . $impersonateData['user']
             );
         }
         return false;

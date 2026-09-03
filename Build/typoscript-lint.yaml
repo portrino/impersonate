@@ -1,5 +1,9 @@
+filePatterns:
+  - "*.tsconfig"
+  - "*.typoscript"
+
 paths:
-  - Configuration/TypoScript
+  - Configuration/
 
 sniffs:
   - class: DeadCode
